@@ -1,42 +1,20 @@
 import Link from "next/link";
 import { sql } from "@vercel/postgres";
 import Image from "next/image";
-
 export default async function Page() {
   try {
-    const { rows } = await sql`SELECT * FROM Elevate;`;
+    const { rows } = await sql`
+     select * from StanDings order by points desc, goal_difference desc, wins desc, team asc;
+    `;
     const sortedRows = [...rows].sort((a, b) => b.points - a.points);
-
     return (
       <div>
-        <h1>Flagrant Fowl Futbol Association</h1>
-        <Link
-          href="/dashboard"
-          style={{
-            textDecoration: "none",
-            color: "white",
-            backgroundColor: "#009879",
-            padding: "10px",
-            borderRadius: "5px",
-            fontWeight: "bold",
-          }}
-        >
-          Go to Dashboard
-        </Link>{" "}
-        <Link
-          href="/learnmore"
-          style={{
-            textDecoration: "none",
-            color: "white",
-            backgroundColor: "#009879",
-            padding: "10px",
-            borderRadius: "5px",
-            fontWeight: "bold",
-          }}
-        >
-          Learn More
-        </Link>
-        <h2>2023 Final Standings</h2>
+        <br />
+        <center>
+          {" "}
+          <h1>Flagrant Fowl Futbol Association</h1>
+          <h2>2023 Final Standings</h2>
+        </center>
         <table>
           <thead>
             <tr>
@@ -47,12 +25,13 @@ export default async function Page() {
               <th>L</th>
               <th>GD</th>
               <th>Pts</th>
+              <th>MP</th>
             </tr>
           </thead>
           <tbody>
             {sortedRows.map((row, index) => (
               <tr key={index}>
-                <td>{row.team}</td>
+                <td>{row.team.toUpperCase()}</td>
                 <td>
                   <Image
                     src={`/logos/${row.team.toLowerCase()}.jpeg`}
@@ -63,9 +42,10 @@ export default async function Page() {
                 </td>
                 <td>{row.wins}</td>
                 <td>{row.draws}</td>
-                <td>{row.lost}</td>
-                <td>{row.gd}</td>
+                <td>{row.losses}</td>
+                <td>{row.goal_difference}</td>
                 <td>{row.points}</td>
+                <td>{row.matches_played}</td>
               </tr>
             ))}
           </tbody>
@@ -74,7 +54,6 @@ export default async function Page() {
     );
   } catch (error) {
     console.error("Error fetching data from the database:", error);
-
     return (
       <div>
         <h1>Hello</h1>
