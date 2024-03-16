@@ -3,6 +3,7 @@ import styles from "./addMatch.module.css";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Button from "react-bootstrap/Button";
+import { a } from "vitest/dist/suite-MFRDkZcV.js";
 
 interface AddMatchProps {
   onClose: () => void;
@@ -25,6 +26,10 @@ const AddMatch: React.FC<AddMatchProps> = ({ onClose }) => {
       });
   }, []);
   const addMatch = () => {
+    if (!homeTeam || !awayTeam || !time || !date || !location) {
+      alert("Please fill all the fields");
+      return;
+    }
     fetch("/api/matchSchedule", {
       method: "POST",
       body: JSON.stringify({

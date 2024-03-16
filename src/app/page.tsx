@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
@@ -13,13 +12,18 @@ interface StandingRow {
   mp: number;
   goals_scored: number;
   goals_conceded: number;
+  date: string;
 }
+
 export default function Page() {
   const [rows, setRows] = useState<StandingRow[]>([]);
+  const [years, setYears] = useState<number[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
   useEffect(() => {
     const fetchStandings = async () => {
       try {
-        const response = await fetch("/api/standings");
+        const response = await fetch(`/api/standings`);
         const data = await response.json();
         if (Array.isArray(data.result.rows)) {
           setRows(data.result.rows);
@@ -33,15 +37,53 @@ export default function Page() {
         console.error("Error fetching data from the API:", error);
       }
     };
+
+    const fetchYears = async () => {
+      try {
+        const response = await fetch("/api/match_years");
+        const year = await response.json();
+        console.log(year.result.rows);
+        if (Array.isArray(year.result.rows)) {
+          const extractedYears = year.result.rows.map((item: any) => item.year);
+          setYears(extractedYears);
+        } else {
+          console.error(
+            "Data structure returned from API is not as expected:",
+            year
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching years from the API:", error);
+      }
+    };
     fetchStandings();
-  }, []);
+    fetchYears();
+  }, [selectedYear]);
+
+  const handleYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(parseInt(event.target.value));
+  };
+
   return (
     <div>
       <br />
       <center>
         <h1>Flagrant Fowl Futbol Association</h1>
-        <h2>2023 Final Standings</h2>
+        <h2>2024 Final Standings</h2>
       </center>
+      <br />
+      <div>
+        <label htmlFor="year">Select Year:</label>
+        <select id="year" onChange={handleYearChange}>
+          <option value="">Select Year</option>
+          {years.map((year, index) => (
+            <option key={index} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+      <br />
       <table>
         <thead>
           <tr>
